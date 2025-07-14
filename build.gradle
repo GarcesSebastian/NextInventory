@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'com.nextinventory'
+group = 'com.github.GarcesSebastian'
 version = '1.0.0'
 
 java {
@@ -37,6 +37,9 @@ publishing {
             artifactId = 'nextinventory'
             version = project.version
         }
+    }
+    repositories {
+        mavenLocal()
     }
 }
 

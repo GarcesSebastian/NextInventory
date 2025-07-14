@@ -1,10 +1,10 @@
-package com.nextinventory;
+package com.sebxstt.nextinventory;
 
-import com.nextinventory.enums.InventoryType;
-import com.nextinventory.custom_listener.NextInventoryListener;
-import com.nextinventory.enums.InventorySizeType;
-import com.nextinventory.instances.NextItem;
-import com.nextinventory.instances.NextPage;
+import com.sebxstt.nextinventory.enums.InventoryType;
+import com.sebxstt.nextinventory.custom_listener.NextInventoryListener;
+import com.sebxstt.nextinventory.enums.InventorySizeType;
+import com.sebxstt.nextinventory.instances.NextItem;
+import com.sebxstt.nextinventory.instances.NextPage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.nextinventory.InventoryHelper.*;
+import static com.sebxstt.nextinventory.InventoryHelper.*;
 
 public class NextInventory extends NextInventoryListener {
     public UUID id;

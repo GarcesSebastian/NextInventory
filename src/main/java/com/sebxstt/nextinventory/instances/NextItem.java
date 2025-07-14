@@ -1,20 +1,22 @@
-package com.nextinventory.instances;
+package com.sebxstt.nextinventory.instances;
 
-import com.nextinventory.enums.InventoryType;
-import com.nextinventory.NextInventory;
+import com.sebxstt.nextinventory.NextInventoryProvider;
+import com.sebxstt.nextinventory.enums.InventoryType;
+import com.sebxstt.nextinventory.NextInventory;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import static com.nextinventory.NextInventoryProvider.mm;
-import static com.nextinventory.InventoryHelper.*;
+import static com.sebxstt.nextinventory.NextInventoryProvider.mm;
+import static com.sebxstt.nextinventory.InventoryHelper.*;
 
 public class NextItem {
     private UUID id;
@@ -33,7 +35,7 @@ public class NextItem {
     private ItemMeta meta;
     private int index;
 
-    private Consumer<Player> onClickCallback;
+    private List<Consumer<Player>> onClickCallbacks = new ArrayList<>();
 
     // Main Functions
     public NextItem(String name, String description, Material materialType, NextInventory parent) {
@@ -90,14 +92,7 @@ public class NextItem {
     // CallBack Functions
     public void onClick(Consumer<Player> onClickCallback) {
         if (!this.button) throw new IllegalStateException("[NextItem] This method only buttons");
-        NextInventory inventory = next(this.getParent());
-        InventoryType type = inventory.getType();
-        if (type != InventoryType.PAGINATION) {
-            System.out.println("[ButtonItem] Intento de asignar onClick en inventario no paginado: " + type);
-            return;
-        }
-
-        this.onClickCallback = onClickCallback;
+        this.onClickCallbacks.add(onClickCallback);
     }
 
     // Emitters Functions
@@ -107,8 +102,8 @@ public class NextItem {
             return;
         }
 
-        if (this.onClickCallback != null) {
-            this.onClickCallback.accept(player);
+        for (int i = 0; i < onClickCallbacks.size(); i++) {
+            onClickCallbacks.get(i).accept(player);
         }
     }
 
@@ -161,7 +156,7 @@ public class NextItem {
     public NextItem button(boolean button) {
         this.button = button;
         if (!button) {
-            this.onClickCallback = null;
+            this.onClickCallbacks.clear();
         }
         this.render();
         return this;
@@ -219,6 +214,21 @@ public class NextItem {
     public NextItem move(int index, int page) {
         this.insert(page);
         return this.move(index);
+    }
+    public NextItem remove() {
+        NextPage nextPage = pagination(this.pageID, this.parent);
+        if (nextPage == null) throw new IllegalStateException("Page Not Found When Remove NextItem " + this.id);
+
+        NextInventory nextInventory = next(this.getParent());
+        nextInventory.getItems().remove(this);
+        nextPage.remove(this);
+
+        this.pageID = null;
+        this.registry = false;
+        this.onClickCallbacks.clear();
+
+        nextInventory.render();
+        return this;
     }
 
     // Setters Functions

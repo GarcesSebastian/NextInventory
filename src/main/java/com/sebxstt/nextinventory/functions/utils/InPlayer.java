@@ -1,4 +1,4 @@
-package com.nextinventory.functions.utils;
+package com.sebxstt.nextinventory.functions.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

@@ -1,9 +1,9 @@
-package com.nextinventory;
+package com.sebxstt.nextinventory;
 
-import com.nextinventory.functions.utils.InPlayer;
-import com.nextinventory.enums.InventoryType;
-import com.nextinventory.instances.NextItem;
-import com.nextinventory.instances.NextPage;
+import com.sebxstt.nextinventory.functions.utils.InPlayer;
+import com.sebxstt.nextinventory.enums.InventoryType;
+import com.sebxstt.nextinventory.instances.NextItem;
+import com.sebxstt.nextinventory.instances.NextPage;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.nextinventory.NextInventoryProvider.nextInventoryList;
+import static com.sebxstt.nextinventory.NextInventoryProvider.nextInventoryList;
 
 public class InventoryHelper {
 

@@ -1,4 +1,4 @@
-package com.nextinventory.enums;
+package com.sebxstt.nextinventory.enums;
 
 import java.util.ArrayList;
 import java.util.Collections;

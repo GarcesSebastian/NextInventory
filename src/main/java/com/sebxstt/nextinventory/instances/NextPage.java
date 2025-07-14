@@ -1,11 +1,11 @@
-package com.nextinventory.instances;
+package com.sebxstt.nextinventory.instances;
 
-import com.nextinventory.NextInventory;
+import com.sebxstt.nextinventory.NextInventory;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
-import static com.nextinventory.InventoryHelper.pagination;
+import static com.sebxstt.nextinventory.InventoryHelper.pagination;
 
 public class NextPage {
     private UUID id;

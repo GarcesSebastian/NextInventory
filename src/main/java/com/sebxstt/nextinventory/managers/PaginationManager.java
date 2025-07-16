@@ -14,7 +14,10 @@ import static com.sebxstt.nextinventory.InventoryHelper.blocked;
 
 public class PaginationManager {
     public static void RenderPagination(NextInventory nextInventory) {
-        for (NextItem bt : List.of(nextInventory.getBack(), nextInventory.getCurrent(), nextInventory.getNext())) {
+        for (NextItem bt : List.of(
+                nextInventory.getBack(), nextInventory.getCurrent(),
+                nextInventory.getNext(), nextInventory.getForward(),
+                nextInventory.getBackward())) {
             nextInventory.getInstance().setItem(bt.getIndex(), bt.getInstance());
         }
 
@@ -25,7 +28,7 @@ public class PaginationManager {
 
     public static void setup(NextInventory instance) {
         int slots = instance.getSize().getTotalSlots();
-        int[] indexes = new int[]{slots - 6, slots - 5, slots - 4};
+        int[] indexes = new int[]{slots - 6, slots - 5, slots - 4, 8, 0};
         ArrayList<Integer> blockedList = new ArrayList<>(instance.getSize().getBlockedSlots());
 
         for (int i : indexes) {
@@ -35,23 +38,37 @@ public class PaginationManager {
         instance.setIndexBlockedList(blockedList);
         instance.setIndexAllowedList(new ArrayList<>(instance.getSize().getAllowedSlots()));
 
-        NextItem BackItem = new NextItem("Retroceder", "---", Material.ARROW, instance);
-        BackItem.setIndex(indexes[0]);
-        BackItem.button(true).draggable(false);
-        instance.setBack(BackItem);
-        instance.getItems().remove(BackItem);
+        NextItem backItem = new NextItem("Retroceder", "---", Material.ARROW, instance);
+        backItem.setIndex(indexes[0]);
+        backItem.button(true).draggable(false);
+        instance.setBack(backItem);
+        instance.getItems().remove(backItem);
 
-        NextItem CurrentItem = new NextItem("Pagina Actual", "Pagina actual: 1", Material.CLOCK, instance);
-        CurrentItem.setIndex(indexes[1]);
-        CurrentItem.draggable(false);
-        instance.setCurrent(CurrentItem);
-        instance.getItems().remove(CurrentItem);
+        NextItem currentItem = new NextItem("Pagina Actual", "Pagina actual: 1", Material.CLOCK, instance);
+        currentItem.setIndex(indexes[1]);
+        currentItem.draggable(false);
+        instance.setCurrent(currentItem);
+        instance.getItems().remove(currentItem);
 
-        NextItem NextItem = new NextItem("Avanzar", "Pagina siguiente: 2", Material.ARROW, instance);
-        NextItem.setIndex(indexes[2]);
-        NextItem.button(true).draggable(false);
-        instance.setNext(NextItem);
-        instance.getItems().remove(NextItem);
+        NextItem nextItem = new NextItem("Avanzar", "Pagina siguiente: 2", Material.ARROW, instance);
+        nextItem.setIndex(indexes[2]);
+        nextItem.button(true).draggable(false);
+        instance.setNext(nextItem);
+        instance.getItems().remove(nextItem);
+
+        if (instance.isHistorable()) {
+            NextItem ForwardItem = new NextItem("Siguiente Interfaz", "Siguiente interfaz: -", Material.GREEN_STAINED_GLASS_PANE, instance);
+            ForwardItem.setIndex(8);
+            ForwardItem.button(true).draggable(false);
+            instance.setFoward(ForwardItem);
+            instance.getItems().remove(ForwardItem);
+
+            NextItem BackwardItem = new NextItem("Anterior Interfaz", "Anterior interfaz: -", Material.BLUE_STAINED_GLASS_PANE, instance);
+            BackwardItem.setIndex(0);
+            BackwardItem.button(true).draggable(false);
+            instance.setBackward(BackwardItem);
+            instance.getItems().remove(BackwardItem);
+        }
 
         RenderPagination(instance);
 

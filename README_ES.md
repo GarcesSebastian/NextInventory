@@ -4,85 +4,89 @@
 
 <img src="https://github.com/GarcesSebastian/NextInventory/blob/main/src/main/java/com/sebxstt/nextinventory/assets/logo.png?raw=true" width="150"/>
 
-<br><br>
 
-![Minecraft Version](https://img.shields.io/badge/Minecraft-1.21.4-green)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+[![Minecraft Version](https://img.shields.io/badge/Minecraft-1.21.4-brightgreen.svg)](https://www.minecraft.net/)
+[![Version](https://img.shields.io/badge/Version-1.0.0--alpha-blue.svg)](https://github.com/GarcesSebastian/NextInventory)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**Una biblioteca moderna y elegante para crear menús GUI en Minecraft**
+**Una biblioteca potente y flexible para crear GUIs de inventario interactivas en Minecraft 1.21.4**
 
 </div>
 
-## 🚀 Descripción
+## 📚 Descripción general
 
-NextInventory es una biblioteca eficiente y fácil de usar para crear interfaces gráficas de usuario basadas en inventarios para plugins de Minecraft. Está diseñada para simplificar la creación de menús interactivos complejos con características como paginación, animaciones de ítems y manejo dinámico de eventos.
+NextInventory es una biblioteca ligera pero potente para plugins de PaperMC que simplifica la creación y gestión de GUIs de inventario interactivas en Minecraft. Con NextInventory, puedes crear interfaces de inventario dinámicas, receptivas y visualmente atractivas con un código mínimo.
 
-## ✨ Características Principales
+Diseñado con flexibilidad y facilidad de uso en mente, NextInventory es perfecto para desarrolladores de plugins que desean mejorar sus interfaces de usuario sin la complejidad de la gestión tradicional de inventarios.
 
-- 🧩 **API Fluida** - Sintaxis clara y encadenada para crear inventarios
-- 📑 **Paginación** - Soporte integrado para inventarios multipágina
-- ⚡ **Eventos Personalizados** - Sistema robusto de manejo de eventos
-- 🎬 **Animaciones** - Animaciones de ítems con ciclos y alternancia
-- 🔄 **Contenido Dinámico** - Actualiza los inventarios en tiempo real
-- 🎨 **Personalización Completa** - Control total sobre los diseños y apariencia
-- 🧰 **Compatibilidad con MiniMessage** - Soporte para textos formateados y gradientes
+### ✨ Características Principales
+
+- **API de Constructor Simple** - Crea GUIs de inventario con una API fluida y encadenable
+- **Soporte de Paginación** - Crea fácilmente inventarios de múltiples páginas con controles de navegación
+- **Gestión Dinámica de Ítems** - Añade, elimina o actualiza ítems en tiempo real
+- **Manejo de Eventos** - Registra callbacks de clic para elementos interactivos
+- **Soporte de Animaciones** - Crea ítems animados que cambian de materiales o realizan ciclos
+- **Diseño Personalizable** - Define qué slots son utilizables o decorativos
+- **Tipado Seguro** - API con tipos fuertes para mejorar la fiabilidad del código
 
 ## 📦 Instalación
 
 ### Maven
 
 ```xml
-<repository>
-    <id>nextinventory-repo</id>
-    <url>https://repo.example.com/maven-public/</url>
-</repository>
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
 
-<dependency>
-    <groupId>com.sebxstt</groupId>
-    <artifactId>nextinventory</artifactId>
-    <version>0.1.0-alpha</version>
-    <scope>compile</scope>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>com.github.GarcesSebastian</groupId>
+        <artifactId>nextinventory</artifactId>
+        <version>1.0.0</version>
+    </dependency>
+</dependencies>
 ```
 
 ### Gradle
 
 ```groovy
 repositories {
-    maven { url "https://repo.example.com/maven-public/" }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    implementation 'com.sebxstt:nextinventory:0.1.0-alpha'
+    implementation 'com.github.GarcesSebastian:nextinventory:1.0.0'
 }
 ```
 
-## 🔧 Primeros Pasos
+## 🚀 Primeros Pasos
 
-### Paso 1: Inicializar la biblioteca
+### Configuración Básica
+
+Para usar NextInventory en tu plugin, necesitas inicializarlo en el método `onEnable` de tu plugin:
 
 ```java
-import com.sebxstt.nextinventory.NextInventoryProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-
 public class MyPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         // Inicializar NextInventory con la instancia de tu plugin
         NextInventoryProvider.setup(this);
         
-        // Tu otro código de inicialización...
+        // Tu otro código de inicialización del plugin...
     }
 }
 ```
 
-### Paso 2: Crear un inventario básico
+### Creando un Inventario Simple
 
 ```java
 // Crear un inventario básico
 NextInventory inventory = NextInventory.builder()
-    .title("Mi Inventario")
-    .size(InventorySize.NORMAL) // 36 slots (4 filas)
+    .title("Inventario de Ejemplo")
+    .size(InventorySize.NORMAL)
     .type(InventoryType.NORMAL);
 
 // Crear y añadir un ítem
@@ -104,30 +108,55 @@ inventory.open(player.getUniqueId());
 
 ### NextInventory
 
-La clase principal para gestionar tus inventarios. Proporciona métodos para crear y configurar el inventario, gestionar páginas, agregar ítems y controlar la visualización.
+La clase principal que representa una interfaz gráfica de inventario. Gestiona el estado del inventario, los ítems, páginas y manejo de eventos.
+
+```java
+NextInventory inventory = NextInventory.builder()
+    .title("Inventario de Ejemplo") // Establece el título del inventario
+    .size(InventorySize.LARGE)  // Establece el tamaño (LITTLE, NORMAL, MEDIUM, LARGE)
+    .type(InventoryType.PAGINATION) // Establece el tipo (NORMAL, PAGINATION, SCROLLING)
+    .build();
+```
 
 ### NextItem
 
-Representa un ítem dentro del inventario. Proporciona métodos para configurar propiedades de los ítems, añadir manejadores de eventos y crear animaciones.
+Representa un ítem en un inventario con funcionalidad mejorada como manejo de clics y animaciones.
 
-### Enumeraciones
+```java
+NextItem item = inventory.CustomItem("Nombre del Ítem", "Descripción del Ítem", Material.DIAMOND, indicePosicion)
+    .button(true) // Hacerlo interactivo
+    .insert();    // Añadir al inventario
 
-- **InventorySize**: Define tamaños de inventario predefinidos:
-  - `LITTLE` (9 slots)
-  - `NORMAL` (36 slots)
-  - `MEDIUM` (45 slots)
-  - `LARGE` (54 slots)
+// Añadir un manejador de clic
+item.onClick(event -> {
+    // Hacer algo cuando se hace clic
+});
+```
 
-- **InventoryType**: Define el comportamiento del inventario:
-  - `NORMAL` (Inventario estándar)
-  - `PAGINATION` (Inventario con múltiples páginas)
-  - `SCROLLING` (Inventario con desplazamiento, próximamente)
+### InventorySize
+
+Tamaños de inventario predefinidos con diseños optimizados:
+
+- `LITTLE` - 27 slots (3 filas)
+- `NORMAL` - 36 slots (4 filas)
+- `MEDIUM` - 45 slots (5 filas)
+- `LARGE` - 54 slots (6 filas)
+
+Cada tamaño define automáticamente slots de borde y slots de contenido para un diseño de interfaz óptimo.
+
+### InventoryType
+
+Define el comportamiento del inventario:
+
+- `NORMAL` - Inventario estándar sin paginación
+- `PAGINATION` - Inventario multi-página con controles de navegación
+- `SCROLLING` - Inventario con desplazamiento (planificado para una futura versión)
 
 ## 🎨 Características y Ejemplos
 
 ### Paginación
 
-Crea inventarios multipágina para organizar grandes cantidades de contenido:
+Crea inventarios multi-página para organizar grandes cantidades de contenido:
 
 ```java
 // Crear un inventario paginado con 4 páginas
@@ -168,11 +197,8 @@ Crea ítems dinámicos que cambian su apariencia con el tiempo:
 // Crear un ítem que alterna entre dos materiales
 NextItem animatedItem = inventory.CustomItem("Ítem Animado", "Alterna materiales", Material.DIAMOND, 0)
     .button(true)
-    .swap(Material.DIAMOND, Material.EMERALD, 10L) // Alternar cada 10 ticks
+    .swap(Material.DIAMOND, Material.EMERALD, 20L) // Alternar cada segundo (20 ticks)
     .insert();
-
-// Detener la animación de alternancia cuando sea necesario
-// animatedItem.stopSwap();
 
 // Crear un ítem que cicla entre múltiples materiales
 NextItem cyclingItem = inventory.CustomItem("Ítem Cíclico", "Cicla materiales", Material.DIAMOND, 1)
@@ -184,6 +210,9 @@ NextItem cyclingItem = inventory.CustomItem("Ítem Cíclico", "Cicla materiales"
         Material.IRON_INGOT
     ), 15L) // Ciclar cada 15 ticks
     .insert();
+
+// Detener la animación de alternancia cuando sea necesario
+// animatedItem.stopSwap();
 
 // Detener la animación de ciclo cuando sea necesario
 // cyclingItem.stopCycle();
@@ -211,7 +240,7 @@ menuButton.onClick(event -> {
         // Cada ítem dinámico puede tener su propio manejador de clic
         final int index = i;
         dynamicItem.onClick(subEvent -> {
-            subEvent.getPlayer().sendMessage("Ítem seleccionado " + index);
+            subEvent.getPlayer().sendMessage("Seleccionado ítem " + index);
             dynamicItem.remove(); // Eliminar el ítem cuando se hace clic
         });
     }
@@ -230,58 +259,35 @@ NextItem movableItem = inventory.CustomItem("Ítem Móvil", "Haz clic para mover
     .insert();
 
 movableItem.onClick(event -> {
-    // Mover el ítem a una nueva posición
-    movableItem.move(8); // Mover a la posición 8
+    // Mover a una nueva posición en la página actual
+    movableItem.move(5);
     
-    // También puedes mover ítems a diferentes páginas
-    // Primero reinsertar en la página deseada, luego mover
-    movableItem.remove();
-    movableItem.insert(2); // Insertar en la página 2
-    movableItem.move(4);   // Mover a la posición 4 en la página 2
+    // O mover a una posición en otra página
+    // movableItem.move(3, 2); // Mover a la posición 3 en la página 2
 });
 ```
 
-### Diseños Avanzados
+### Diseño Avanzado
 
-Crear diseños complejos con ítems de relleno:
+Utiliza slots bloqueados y permitidos para crear diseños estructurados:
 
 ```java
-// Crear un inventario con un diseño de borde
-NextInventory inventory = NextInventory.builder()
-    .title("Inventario con Borde")
-    .size(InventorySize.LARGE)
-    .type(InventoryType.NORMAL);
+// La enumeración InventorySize ya define áreas de borde y contenido
+// Puedes acceder a estos diseños predefinidos
+List<Integer> borderSlots = inventory.getSize().getBlockedSlots();
+List<Integer> contentSlots = inventory.getSize().getAllowedSlots();
 
-// Crear ítems de borde
-Material borderMaterial = Material.BLACK_STAINED_GLASS_PANE;
-// Borde superior
-for (int i = 0; i < 9; i++) {
-    inventory.CustomItem(" ", "", borderMaterial, i).insert();
-}
-// Bordes izquierdo y derecho
-for (int row = 1; row < 5; row++) {
-    inventory.CustomItem(" ", "", borderMaterial, row * 9).insert();
-    inventory.CustomItem(" ", "", borderMaterial, row * 9 + 8).insert();
-}
-// Borde inferior
-for (int i = 45; i < 54; i++) {
-    inventory.CustomItem(" ", "", borderMaterial, i).insert();
-}
-
-// Ahora añadir ítems dentro del borde
-inventory.CustomItem("Ítem Central", "Este ítem está en el centro", Material.NETHER_STAR, 22)
-    .button(true)
-    .insert();
+// Usa el helper contentIndex para obtener el siguiente slot de contenido disponible
+int nextAvailableSlot = InventoryHelper.contentIndex(inventory, 0);
 ```
 
 ### Personalización de Ítems
 
-Personaliza los ítems con MiniMessage para textos con formato:
+Crea ítems con personalización avanzada utilizando formato MiniMessage:
 
 ```java
-// Usar MiniMessage para texto formateado
 NextItem customItem = inventory.CustomItem(
-    "<rainbow>Arcoíris Increíble</rainbow>", // Título con MiniMessage
+    "<rainbow>Título Arcoíris</rainbow>", // Título usando formato MiniMessage
     "<gradient:#ff0000:#00ff00>Descripción con gradiente</gradient>", // Descripción con MiniMessage
     Material.DIAMOND,
     0
@@ -539,7 +545,13 @@ dangerButton.onClick(event -> {
 
 ## 🛑 Limitaciones y Compatibilidad
 
-Actualmente, NextInventory solo es compatible con **Minecraft 1.21.4**.
+- **Versiones de Minecraft**: NextInventory está diseñado y probado para Minecraft 1.21.4. La compatibilidad con versiones anteriores no está garantizada.
+
+- **Limitaciones de Paginación**: Se recomienda un máximo de 100 páginas para evitar problemas de rendimiento.
+
+- **Animaciones**: Las animaciones consumen recursos del servidor. Limita el número de ítems animados por inventario.
+
+- **Referencias Circulares**: Ten cuidado con las referencias circulares en callbacks que pueden causar memory leaks.
 
 Versiones futuras incluirán soporte para:
 - Minecraft 1.21.X

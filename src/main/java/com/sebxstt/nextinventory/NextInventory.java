@@ -5,6 +5,7 @@ import com.sebxstt.nextinventory.listener.NextInventoryListener;
 import com.sebxstt.nextinventory.enums.InventorySize;
 import com.sebxstt.nextinventory.instances.NextItem;
 import com.sebxstt.nextinventory.instances.NextPage;
+import com.sebxstt.nextinventory.managers.PaginationManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -29,7 +30,11 @@ public class NextInventory extends NextInventoryListener {
     private NextItem current;
     private NextItem next;
 
+    private NextItem foward;
+    private NextItem backward;
+
     private Integer currentPage = 1;
+    private boolean isHistorable = false;
 
     private ArrayList<Integer> indexBlockedList = new ArrayList<>();
     private ArrayList<Integer> indexAllowedList = new ArrayList<>();
@@ -119,6 +124,13 @@ public class NextInventory extends NextInventoryListener {
         return this;
     }
 
+    public NextInventory historable(boolean isHistorable) {
+        this.isHistorable = isHistorable;
+        resolve(this);
+
+        return this;
+    }
+
     public NextInventory open(UUID target) throws IllegalStateException {
         if (!this.players.contains(target)) {
             this.players.add(target);
@@ -166,7 +178,7 @@ public class NextInventory extends NextInventoryListener {
     }
 
     public void render() {
-//        PaginationManager.update(this);
+        PaginationManager.update(this);
         NextPage currentPage = pagination(this.currentPage, this.id);
         if (currentPage == null) return;
 
@@ -251,6 +263,14 @@ public class NextInventory extends NextInventoryListener {
         this.next = next;
     }
 
+    public void setFoward(NextItem foward) {
+        this.foward = foward;
+    }
+
+    public void setBackward(NextItem backward) {
+        this.backward = backward;
+    }
+
     public void setIndexBlockedList(ArrayList<Integer> indexBlockedList) {
         this.indexBlockedList = indexBlockedList;
     }
@@ -307,11 +327,21 @@ public class NextInventory extends NextInventoryListener {
         return current;
     }
 
+    public NextItem getNext() {
+        return next;
+    }
+
+    public NextItem getForward() {
+        return this.foward;
+    }
+
+    public NextItem getBackward() {
+        return this.backward;
+    }
+
     public int getCurrentPage() {
         return this.currentPage;
     }
 
-    public NextItem getNext() {
-        return next;
-    }
+    public boolean isHistorable() { return this.isHistorable; }
 }

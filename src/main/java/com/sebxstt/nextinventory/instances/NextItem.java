@@ -64,6 +64,10 @@ public class NextItem {
         this.instance = new ItemStack(this.materialType);
         this.meta = this.instance.getItemMeta();
 
+        if (materialType == null || materialType == Material.AIR) {
+            throw new IllegalStateException("[NextItem] Material inválido para el ítem.");
+        }
+
         this.meta.displayName(mm.deserialize("<gradient:#ff00ff:#00ffff><bold>" + this.name + "</bold></gradient>"));
 
         if (!description.isBlank()) {

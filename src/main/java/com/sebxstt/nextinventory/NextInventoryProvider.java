@@ -1,6 +1,5 @@
 package com.sebxstt.nextinventory;
 
-import com.sebxstt.nextinventory.listener.InventoryListener;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;

@@ -1,7 +1,5 @@
-package com.sebxstt.nextinventory.listener;
+package com.sebxstt.nextinventory;
 
-import com.sebxstt.nextinventory.NextInventory;
-import com.sebxstt.nextinventory.NextInventoryProvider;
 import com.sebxstt.nextinventory.instances.NextItem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,12 +8,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public class InventoryListener implements Listener {
     @EventHandler

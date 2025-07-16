@@ -1,19 +1,16 @@
 package com.sebxstt.nextinventory;
 
 import com.sebxstt.nextinventory.enums.InventoryType;
-import com.sebxstt.nextinventory.custom_listener.NextInventoryListener;
+import com.sebxstt.nextinventory.listener.NextInventoryListener;
 import com.sebxstt.nextinventory.enums.InventorySize;
 import com.sebxstt.nextinventory.instances.NextItem;
 import com.sebxstt.nextinventory.instances.NextPage;
-import com.sebxstt.nextinventory.managers.PaginationManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 

@@ -1,8 +1,7 @@
-package com.sebxstt.nextinventory.custom_listener;
+package com.sebxstt.nextinventory.listener;
 
 import com.sebxstt.nextinventory.enums.InventoryType;
 import com.sebxstt.nextinventory.events.NextInventoryEvent;
-import org.bukkit.entity.Player;
 
 import java.util.UUID;
 import java.util.function.Consumer;

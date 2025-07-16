@@ -1,6 +1,7 @@
 package com.sebxstt.nextinventory.custom_listener;
 
 import com.sebxstt.nextinventory.enums.InventoryType;
+import com.sebxstt.nextinventory.events.NextInventoryEvent;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -15,10 +16,14 @@ public class NextInventoryListener {
         this.type = type;
     }
 
-    private Consumer<Player> onBackCallback;
-    private Consumer<Player> onNextCallback;
+    public void setType(InventoryType type) {
+        this.type = type;
+    }
 
-    public void onBack(Consumer<Player> onBackCallback) {
+    private Consumer<NextInventoryEvent> onBackCallback;
+    private Consumer<NextInventoryEvent> onNextCallback;
+
+    public void onBack(Consumer<NextInventoryEvent> onBackCallback) {
         if (type == InventoryType.PAGINATION) {
             this.onBackCallback = onBackCallback;
         } else {
@@ -26,7 +31,7 @@ public class NextInventoryListener {
         }
     }
 
-    public void onNext(Consumer<Player> onNextCallback) {
+    public void onNext(Consumer<NextInventoryEvent> onNextCallback) {
         if (type == InventoryType.PAGINATION) {
             this.onNextCallback = onNextCallback;
         } else {
@@ -34,15 +39,15 @@ public class NextInventoryListener {
         }
     }
 
-    public void emitBack(Player player) {
+    public void emitBack(NextInventoryEvent event) {
         if (onBackCallback != null) {
-            onBackCallback.accept(player);
+            onBackCallback.accept(event);
         }
     }
 
-    public void emitNext(Player player) {
+    public void emitNext(NextInventoryEvent event) {
         if (onNextCallback != null) {
-            onNextCallback.accept(player);
+            onNextCallback.accept(event);
         }
     }
 }

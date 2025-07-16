@@ -1,14 +1,19 @@
 package com.sebxstt.nextinventory.instances;
 
 import com.sebxstt.nextinventory.NextInventoryProvider;
+import com.sebxstt.nextinventory.events.NextClickEvent;
 import com.sebxstt.nextinventory.enums.InventoryType;
 import com.sebxstt.nextinventory.NextInventory;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.util.Ticks;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +26,7 @@ import static com.sebxstt.nextinventory.InventoryHelper.*;
 public class NextItem {
     private UUID id;
     private UUID parent;
-    private UUID pageID;
+    private Integer currentPage;
 
     private String name;
     private String description;
@@ -35,7 +40,10 @@ public class NextItem {
     private ItemMeta meta;
     private int index;
 
-    private List<Consumer<Player>> onClickCallbacks = new ArrayList<>();
+    private List<Consumer<NextClickEvent>> onClickCallbacks = new ArrayList<>();
+
+    private BukkitTask SwapConnection;
+    private BukkitTask CycleConnection;
 
     // Main Functions
     public NextItem(String name, String description, Material materialType, NextInventory parent) {
@@ -53,6 +61,7 @@ public class NextItem {
         parent.getItems().add(this);
     }
     public void update() {
+        this.instance = new ItemStack(this.materialType);
         this.meta = this.instance.getItemMeta();
 
         this.meta.displayName(mm.deserialize("<gradient:#ff00ff:#00ffff><bold>" + this.name + "</bold></gradient>"));
@@ -70,9 +79,21 @@ public class NextItem {
     public void render() {
         this.update();
 
-        if (this.pageID == null) return;
+        if (this.currentPage == null) return;
         NextInventory nextInventory = next(this.parent);
         nextInventory.render();
+    }
+    public void stopSwap() {
+        if (this.SwapConnection != null && !this.SwapConnection.isCancelled()) {
+            this.SwapConnection.cancel();
+            this.SwapConnection = null;
+        }
+    }
+    public void stopCycle(){
+        if (this.CycleConnection != null && !this.CycleConnection.isCancelled()) {
+            this.CycleConnection.cancel();
+            this.CycleConnection = null;
+        }
     }
 
     // Internals Functions
@@ -81,16 +102,16 @@ public class NextItem {
         this.render();
     }
     private void restart() {
-        if (this.pageID != null) {
-            NextPage currentPage = pagination(this.pageID, this.parent);
-            if (currentPage == null) throw new IllegalStateException("This page not found: " + this.pageID);
+        if (this.currentPage != null) {
+            NextPage currentPage = pagination(this.currentPage, this.parent);
+            if (currentPage == null) throw new IllegalStateException("This page not found: " + this.currentPage);
             currentPage.remove(this);
-            this.pageID = null;
+            this.currentPage = null;
         }
     }
 
     // CallBack Functions
-    public void onClick(Consumer<Player> onClickCallback) {
+    public void onClick(Consumer<NextClickEvent> onClickCallback) {
         if (!this.button) throw new IllegalStateException("[NextItem] This method only buttons");
         this.onClickCallbacks.add(onClickCallback);
     }
@@ -103,7 +124,8 @@ public class NextItem {
         }
 
         for (int i = 0; i < onClickCallbacks.size(); i++) {
-            onClickCallbacks.get(i).accept(player);
+            NextClickEvent event = new NextClickEvent(player);
+            onClickCallbacks.get(i).accept(event);
         }
     }
 
@@ -143,8 +165,8 @@ public class NextItem {
     public ItemStack getInstance() {
         return instance;
     }
-    public UUID getPageID() {
-        return pageID;
+    public Integer getCurrentPage() {
+        return currentPage;
     }
 
     // Helpers Functions
@@ -195,8 +217,8 @@ public class NextItem {
         return this;
     }
     public NextItem move(int index) {
-        if (this.pageID == null) throw new IllegalStateException("Page Not Found When Move NextItem " + this.id);
-        NextPage page = pagination(this.pageID, this.parent);
+        if (this.currentPage == null) throw new IllegalStateException("Page Not Found When Move NextItem " + this.id);
+        NextPage page = pagination(this.currentPage, this.parent);
         if (page == null) throw new IllegalStateException("Page Not Found When Move NextItem " + this.id);
         int indexResolved = originalIndex(next(this.parent), index);
 
@@ -216,18 +238,47 @@ public class NextItem {
         return this.move(index);
     }
     public NextItem remove() {
-        NextPage nextPage = pagination(this.pageID, this.parent);
+        NextPage nextPage = pagination(this.currentPage, this.parent);
         if (nextPage == null) throw new IllegalStateException("Page Not Found When Remove NextItem " + this.id);
 
         NextInventory nextInventory = next(this.getParent());
         nextInventory.getItems().remove(this);
         nextPage.remove(this);
 
-        this.pageID = null;
+        this.currentPage = null;
         this.registry = false;
         this.onClickCallbacks.clear();
 
         nextInventory.render();
+        return this;
+    }
+    public NextItem swap(Material MaterialA, Material MaterialB, Long interval) {
+        Material[] materials = new Material[]{MaterialA, MaterialB};
+
+        this.SwapConnection = new BukkitRunnable() {
+            private int index = 0;
+
+            @Override
+            public void run() {
+                setMaterialType(materials[index]);
+                index = (index + 1) % materials.length;
+            }
+        }.runTaskTimer(NextInventoryProvider.plugin, 0L, interval);
+
+        return this;
+    }
+    public NextItem cycle(List<Material> materials, long interval) {
+        this.CycleConnection = new BukkitRunnable() {
+            private int index = 0;
+
+            @Override
+            public void run() {
+                if (index >= materials.size()) index = 0;
+                setMaterialType(materials.get(index));
+                index++;
+            }
+        }.runTaskTimer(NextInventoryProvider.plugin, 0L, interval);
+
         return this;
     }
 
@@ -251,7 +302,7 @@ public class NextItem {
     public void setParent(UUID parent) {
         this.parent = parent;
     }
-    public void setPageID(UUID pageID) {
-        this.pageID = pageID;
+    public void setCurrentPage(Integer currentPage) {
+        this.currentPage = currentPage;
     }
 }

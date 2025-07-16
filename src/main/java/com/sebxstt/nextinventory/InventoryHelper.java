@@ -1,9 +1,13 @@
 package com.sebxstt.nextinventory;
 
+import com.sebxstt.nextinventory.events.NextInventoryEvent;
 import com.sebxstt.nextinventory.functions.utils.InPlayer;
 import com.sebxstt.nextinventory.enums.InventoryType;
 import com.sebxstt.nextinventory.instances.NextItem;
 import com.sebxstt.nextinventory.instances.NextPage;
+import com.sebxstt.nextinventory.managers.NormalManager;
+import com.sebxstt.nextinventory.managers.PaginationManager;
+import com.sebxstt.nextinventory.managers.ScrollingManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -29,19 +33,39 @@ public class InventoryHelper {
     public static Integer originalIndex(NextInventory nextInventory, int index) {
         Integer indexResolved = nextInventory.getAllowedList().get(index);
         if (indexResolved == null) {
-            throw new IllegalStateException("No se encontro el indice " + index);
+            throw new IllegalStateException("Index Not Found " + index);
+        }
+
+        return indexResolved;
+    }
+
+    public static Integer contentIndex(NextInventory nextInventory, int index) {
+        Integer tempAllowed = nextInventory.getAllowedList().stream()
+                        .filter(allowed -> allowed.equals(index)).findFirst().orElse(null);
+
+        Integer indexResolved = nextInventory.getAllowedList().indexOf(tempAllowed);
+
+        if (indexResolved == null) {
+            throw new IllegalStateException("Index Not Found " + index);
         }
 
         return indexResolved;
     }
 
     public static void RenderPagination(NextInventory nextInventory) {
-        for (NextItem bt : nextInventory.getActionList()) {
-            nextInventory.getInstance().setItem(bt.getIndex(), bt.getInstance());
+        if (nextInventory.getType() == InventoryType.NORMAL){
+            NormalManager.RenderPagination(nextInventory);
+            return;
         }
 
-        for (Integer index : nextInventory.getBlockedList()) {
-            nextInventory.getInstance().setItem(index, blocked());
+        if (nextInventory.getType() == InventoryType.PAGINATION) {
+            PaginationManager.RenderPagination(nextInventory);
+            return;
+        }
+
+        if (nextInventory.getType()  == InventoryType.SCROLLING) {
+            ScrollingManager.RenderPagination(nextInventory);
+            return;
         }
     }
 
@@ -61,55 +85,21 @@ public class InventoryHelper {
 
         InventoryType type = nextInventory.getType();
 
+        nextInventory.setIndexBlockedList(new ArrayList<>(nextInventory.getSize().getBlockedSlots()));
+        nextInventory.setIndexAllowedList(new ArrayList<>(nextInventory.getSize().getAllowedSlots()));
+
+        if (type == InventoryType.NORMAL) {
+            NormalManager.setup(nextInventory);
+            return;
+        }
+
         if (type == InventoryType.PAGINATION) {
-            int slots = nextInventory.getSize().getTotalSlots();
-            int[] indexes = new int[]{slots - 6, slots - 5, slots - 4};
-            ArrayList<Integer> blockedList = new ArrayList<>(nextInventory.getSize().getBlockedSlots());
-
-            for (int i : indexes) {
-                blockedList.remove((Integer) i);
-            }
-
-            nextInventory.setIndexBlockedList(blockedList);
-            nextInventory.setIndexAllowedList(new ArrayList<>(nextInventory.getSize().getAllowedSlots()));
-
-            NextItem BackItem = new NextItem("Retroceder", "---", Material.ARROW, nextInventory);
-            BackItem.setIndex(indexes[0]);
-            BackItem.button(true).draggable(false);
-            nextInventory.setBack(BackItem);
-            nextInventory.getActionList().add(nextInventory.getBack());
-            nextInventory.getItems().remove(BackItem);
-
-            NextItem CurrentItem = new NextItem("Pagina Actual", "Pagina actual: 1", Material.CLOCK, nextInventory);
-            CurrentItem.setIndex(indexes[1]);
-            CurrentItem.draggable(false);
-            nextInventory.setCurrent(CurrentItem);
-            nextInventory.getActionList().add(nextInventory.getCurrent());
-            nextInventory.getItems().remove(CurrentItem);
-
-            NextItem NextItem = new NextItem("Avanzar", "Pagina siguiente: 2", Material.ARROW, nextInventory);
-            NextItem.setIndex(indexes[2]);
-            NextItem.button(true).draggable(false);
-            nextInventory.setNext(NextItem);
-            nextInventory.getActionList().add(nextInventory.getNext());
-            nextInventory.getItems().remove(NextItem);
-
-            RenderPagination(nextInventory);
-
-            nextInventory.getBack().onClick(player -> {
-                System.out.println("[InventoryHelper] Clicked Back " + player.getName() + " - pages: " + nextInventory.getPages().size() + " currentPage: " + nextInventory.getCurrentPage());
-                nextInventory.back();
-                nextInventory.emitBack(player);
-            });
-            nextInventory.getNext().onClick(player -> {
-                System.out.println("[InventoryHelper] Clicked Next " + player.getName() + " - pages: " + nextInventory.getPages().size() + " currentPage: " + nextInventory.getCurrentPage());
-                nextInventory.next();
-                nextInventory.emitNext(player);
-            });
+            PaginationManager.setup(nextInventory);
             return;
         }
 
         if (type == InventoryType.SCROLLING) {
+            ScrollingManager.setup(nextInventory);
             return;
         }
     }

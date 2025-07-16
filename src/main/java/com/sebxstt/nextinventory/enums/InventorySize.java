@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public enum InventorySizeType {
+public enum InventorySize {
     LITTLE(27, 7),
     NORMAL(36, 14),
     MEDIUM(45, 21),
@@ -15,7 +15,7 @@ public enum InventorySizeType {
     private final List<Integer> blockedSlots;
     private final List<Integer> allowedSlots;
 
-    InventorySizeType(int totalSlots, int contentSlots) {
+    InventorySize(int totalSlots, int contentSlots) {
         this.totalSlots   = totalSlots;
         this.contentSlots = contentSlots;
 

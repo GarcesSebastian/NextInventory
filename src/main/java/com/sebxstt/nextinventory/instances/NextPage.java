@@ -24,20 +24,20 @@ public class NextPage {
             throw new IllegalStateException("This Page is Full");
         }
 
-        if (instance.getPageID() != null) {
-            NextPage beforePage = pagination(instance.getPageID(), instance.getParent());
-            if (beforePage == null) throw new IllegalStateException("[NextPage] Not Page Found " + instance.getPageID());
+        if (instance.getCurrentPage() != null) {
+            NextPage beforePage = pagination(instance.getCurrentPage(), instance.getParent());
+            if (beforePage == null) throw new IllegalStateException("[NextPage] Not Page Found " + instance.getCurrentPage());
             beforePage.remove(instance);
         }
 
         this.stack.add(instance.getId());
-        instance.setPageID(this.id);
+        instance.setCurrentPage(this.index);
         return this;
     }
 
     public NextPage remove(NextItem instance) {
         this.stack.remove(instance.getId());
-        instance.setPageID(null);
+        instance.setCurrentPage(null);
 
         return this;
     }

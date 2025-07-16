@@ -2,15 +2,18 @@ package com.sebxstt.nextinventory;
 
 import com.sebxstt.nextinventory.enums.InventoryType;
 import com.sebxstt.nextinventory.custom_listener.NextInventoryListener;
-import com.sebxstt.nextinventory.enums.InventorySizeType;
+import com.sebxstt.nextinventory.enums.InventorySize;
 import com.sebxstt.nextinventory.instances.NextItem;
 import com.sebxstt.nextinventory.instances.NextPage;
+import com.sebxstt.nextinventory.managers.PaginationManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +22,7 @@ import static com.sebxstt.nextinventory.InventoryHelper.*;
 public class NextInventory extends NextInventoryListener {
     public UUID id;
     private String title;
-    private InventorySizeType size;
+    private InventorySize size;
 
     private InventoryType type;
     private ArrayList<UUID> players = new ArrayList<>();
@@ -31,19 +34,17 @@ public class NextInventory extends NextInventoryListener {
 
     private Integer currentPage = 1;
 
-    private ArrayList<NextItem> actionList = new ArrayList<>();
-
     private ArrayList<Integer> indexBlockedList = new ArrayList<>();
     private ArrayList<Integer> indexAllowedList = new ArrayList<>();
 
     private ArrayList<NextPage> pages = new ArrayList<>();
     private ArrayList<NextItem> items = new ArrayList<>();
 
-    public NextInventory(String title, InventorySizeType size, InventoryType type) {
-        super(UUID.randomUUID(), type);
+    private NextInventory() {
+        super(UUID.randomUUID(), InventoryType.NORMAL);
         this.id = super.nextInventory;
-        this.title = title;
-        this.size = size;
+        this.title = "Untitled";
+        this.size = InventorySize.NORMAL;
 
         this.instance = Bukkit.createInventory(null, size.getTotalSlots(), title);
         this.type = type;
@@ -53,6 +54,72 @@ public class NextInventory extends NextInventoryListener {
 
         this.pages.add(new NextPage(this).index(1));
         resolve(this);
+    }
+
+    public static NextInventory builder() {
+        return new NextInventory();
+    }
+
+    public NextInventory title(String title) {
+        this.title = title;
+
+        NextInventoryProvider.nextInventoryMap.remove(this.instance);
+        NextInventoryProvider.nextInventoryList.removeIf(inv -> inv.getId().equals(this.id));
+
+        Inventory newInventory = Bukkit.createInventory(null, size.getTotalSlots(), title);
+        newInventory.setContents(this.instance.getContents());
+        this.instance = newInventory;
+
+        NextInventoryProvider.nextInventoryMap.put(this.instance, this);
+        NextInventoryProvider.nextInventoryList.add(this);
+
+        for (UUID player : this.players) {
+            Player playerOnline = Bukkit.getPlayer(player);
+            assert playerOnline != null;
+            if (!playerOnline.isOnline()) continue;
+            playerOnline.closeInventory();
+            playerOnline.openInventory(this.instance);
+        }
+
+        return this;
+    }
+
+    public NextInventory type(InventoryType type) {
+        this.type = type;
+        resolve(this);
+
+        return this;
+    }
+
+    public NextInventory size(InventorySize size) {
+        Inventory newInventory = Bukkit.createInventory(null, size.getTotalSlots(), title);
+
+        for (NextItem item : this.getItems()) {
+            newInventory.setItem(item.getIndex(), item.getInstance());
+        }
+
+        this.instance.clear();
+
+        NextInventoryProvider.nextInventoryMap.remove(this.instance);
+        NextInventoryProvider.nextInventoryList.removeIf(inv -> inv.getId().equals(this.id));
+
+        this.size = size;
+        this.instance = newInventory;
+
+        NextInventoryProvider.nextInventoryMap.put(this.instance, this);
+        NextInventoryProvider.nextInventoryList.add(this);
+
+        resolve(this);
+
+        for (UUID player : this.players) {
+            Player playerOnline = Bukkit.getPlayer(player);
+            assert playerOnline != null;
+            if (!playerOnline.isOnline()) continue;
+            playerOnline.closeInventory();
+            playerOnline.openInventory(this.instance);
+        }
+
+        return this;
     }
 
     public NextInventory open(UUID target) throws IllegalStateException {
@@ -74,7 +141,35 @@ public class NextInventory extends NextInventoryListener {
         return this;
     }
 
+    public NextInventory current(int index) {
+        if(index > this.pages.size()) throw new IllegalStateException("Not Found Index Page " + index);
+        this.currentPage = index;
+        this.render();
+
+        return this;
+    }
+
+    public void destroy() {
+        for (UUID playerUUID : new ArrayList<>(this.players)) {
+            Player player = Bukkit.getPlayer(playerUUID);
+            if (player != null && player.isOnline()) {
+                player.closeInventory();
+            }
+        }
+
+        NextInventoryProvider.nextInventoryMap.remove(this.instance);
+        NextInventoryProvider.nextInventoryList.removeIf(inv -> inv.getId().equals(this.id));
+
+        this.players.clear();
+        this.items.clear();
+        this.pages.clear();
+        this.indexAllowedList.clear();
+        this.indexBlockedList.clear();
+        this.instance = null;
+    }
+
     public void render() {
+//        PaginationManager.update(this);
         NextPage currentPage = pagination(this.currentPage, this.id);
         if (currentPage == null) return;
 
@@ -88,22 +183,6 @@ public class NextInventory extends NextInventoryListener {
         }
     }
 
-    public void update() {
-        String backDescription = (this.currentPage <= 1)
-                ? "<red>No puedes retroceder</red>"
-                : "Pagina anterior: <yellow>" + (this.currentPage - 1) + "</yellow>";
-
-        String nextDescription = (this.currentPage >= this.pages.size())
-                ? "<red>No puedes avanzar</red>"
-                : "Pagina siguiente: <yellow>" + (this.currentPage + 1) + "</yellow>";
-
-        this.back.setDescription(backDescription);
-        this.current.setDescription("Pagina actual: <yellow>" + this.currentPage + "</yellow>");
-        this.next.setDescription(nextDescription);
-
-        this.render();
-    }
-
     public void back() {
         if (this.currentPage <= 0) return;
         this.currentPage--;
@@ -112,7 +191,7 @@ public class NextInventory extends NextInventoryListener {
             return;
         }
 
-        this.update();
+        this.render();
     }
 
     public void next() {
@@ -123,7 +202,7 @@ public class NextInventory extends NextInventoryListener {
             return;
         }
 
-        this.update();
+        this.render();
     }
 
     public NextItem CustomItem(String name, String description, Material material, int index) {
@@ -155,7 +234,7 @@ public class NextInventory extends NextInventoryListener {
         this.title = title;
     }
 
-    public void setSize(InventorySizeType size) {
+    public void setSize(InventorySize size) {
         this.size = size;
     }
 
@@ -191,7 +270,7 @@ public class NextInventory extends NextInventoryListener {
         return title;
     }
 
-    public InventorySizeType getSize() {
+    public InventorySize getSize() {
         return size;
     }
 
@@ -201,10 +280,6 @@ public class NextInventory extends NextInventoryListener {
 
     public ArrayList<Integer> getBlockedList() {
         return indexBlockedList;
-    }
-
-    public ArrayList<NextItem> getActionList() {
-        return actionList;
     }
 
     public ArrayList<NextItem> getItems() {

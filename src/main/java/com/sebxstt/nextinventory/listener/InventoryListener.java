@@ -13,6 +13,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -53,14 +54,14 @@ public class InventoryListener implements Listener {
         }
 
         for (NextItem bt : inv.Buttons()) {
-            if (bt.getIndex() == rawSlot && bt.isRegistry()) {
+            if (bt.getIndex() == rawSlot && bt.getCurrentPage().equals(inv.getCurrentPage()) && bt.isRegistry()) {
                 event.setCancelled(true);
                 bt.emitClick(player);
                 return;
             }
         }
 
-        for (NextItem bt : inv.getActionList()) {
+        for (NextItem bt : List.of(inv.getBack(), inv.getCurrent(), inv.getNext())) {
             if (bt.getIndex() == rawSlot) {
                 event.setCancelled(true);
                 bt.emitClick(player);

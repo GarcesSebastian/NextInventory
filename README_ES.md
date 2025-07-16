@@ -2,7 +2,10 @@
 
 <div align="center">
 
-![NextInventory Logo](https://img.shields.io/badge/NextInventory-v0.1.0--alpha-blue)
+<img src="https://github.com/GarcesSebastian/NextInventory/blob/main/src/main/java/com/sebxstt/nextinventory/assets/logo.png?raw=true" width="150"/>
+
+<br><br>
+
 ![Minecraft Version](https://img.shields.io/badge/Minecraft-1.21.4-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 

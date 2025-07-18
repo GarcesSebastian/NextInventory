@@ -52,7 +52,7 @@ public class NextItem {
         this.description = description;
         this.materialType = materialType;
 
-        this.parent = parent.id;
+        this.parent = parent.getId();
         this.instance = new ItemStack(materialType);
 
         this.update();
@@ -84,8 +84,12 @@ public class NextItem {
         this.update();
 
         if (this.currentPage == null) return;
+
         NextInventory nextInventory = next(this.parent);
-        nextInventory.render();
+
+        if (nextInventory.getCurrentPage() == this.currentPage) {
+            nextInventory.getInstance().setItem(this.index, this.instance);
+        }
     }
     public void stopSwap() {
         if (this.SwapConnection != null && !this.SwapConnection.isCancelled()) {

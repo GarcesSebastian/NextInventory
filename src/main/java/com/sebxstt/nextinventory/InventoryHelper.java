@@ -14,12 +14,26 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static com.sebxstt.nextinventory.NextInventoryProvider.nextInventoryList;
 
 public class InventoryHelper {
+    public static List<NextItem> DefaultButtons(NextInventory nextInventory) {
+        List<NextItem> items = new ArrayList<>();
+
+        if (nextInventory.getType() == InventoryType.PAGINATION) {
+            items.addAll(List.of(nextInventory.getBack(), nextInventory.getCurrent(), nextInventory.getNext()));
+        }
+
+        if (nextInventory.isHistorable()) {
+            items.addAll(List.of(nextInventory.getForward(), nextInventory.getBackward()));
+        }
+
+        return items;
+    }
 
     public static Player verifyPlayer(UUID player) {
         Player plr = InPlayer.instance(player);
@@ -105,7 +119,7 @@ public class InventoryHelper {
     }
 
     public static NextInventory next(UUID id) {
-        NextInventory instance = nextInventoryList.stream().filter(i -> i.id.equals(id)).findFirst().orElse(null);
+        NextInventory instance = nextInventoryList.stream().filter(i -> i.getId().equals(id)).findFirst().orElse(null);
         if (instance == null) throw new IllegalStateException("Inventory Not Found " + id);
         return instance;
     }

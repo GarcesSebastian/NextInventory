@@ -12,6 +12,8 @@ import org.bukkit.inventory.InventoryView;
 import java.util.List;
 import java.util.Optional;
 
+import static com.sebxstt.nextinventory.InventoryHelper.DefaultButtons;
+
 public class InventoryListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
@@ -56,7 +58,7 @@ public class InventoryListener implements Listener {
             }
         }
 
-        for (NextItem bt : List.of(inv.getBack(), inv.getCurrent(), inv.getNext())) {
+        for (NextItem bt : DefaultButtons(inv)) {
             if (bt.getIndex() == rawSlot) {
                 event.setCancelled(true);
                 bt.emitClick(player);

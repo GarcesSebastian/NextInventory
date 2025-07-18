@@ -16,9 +16,10 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.sebxstt.nextinventory.InventoryHelper.*;
+import static com.sebxstt.nextinventory.NextInventoryProvider.historyManager;
 
 public class NextInventory extends NextInventoryListener {
-    public UUID id;
+    private UUID id;
     private String title;
     private InventorySize size;
 
@@ -34,7 +35,6 @@ public class NextInventory extends NextInventoryListener {
     private NextItem backward;
 
     private Integer currentPage = 1;
-    private boolean isHistorable = false;
 
     private ArrayList<Integer> indexBlockedList = new ArrayList<>();
     private ArrayList<Integer> indexAllowedList = new ArrayList<>();
@@ -49,7 +49,7 @@ public class NextInventory extends NextInventoryListener {
         this.size = InventorySize.NORMAL;
 
         this.instance = Bukkit.createInventory(null, size.getTotalSlots(), title);
-        this.type = type;
+        this.type = InventoryType.NORMAL;
 
         NextInventoryProvider.nextInventoryMap.put(this.instance, this);
         NextInventoryProvider.nextInventoryList.add(this);
@@ -88,6 +88,7 @@ public class NextInventory extends NextInventoryListener {
 
     public NextInventory type(InventoryType type) {
         this.type = type;
+        super.setType(type);
         resolve(this);
 
         return this;
@@ -125,11 +126,12 @@ public class NextInventory extends NextInventoryListener {
     }
 
     public NextInventory historable(boolean isHistorable) {
-        this.isHistorable = isHistorable;
+        setIsHistorable(isHistorable);
         resolve(this);
-
+        historyManager.save(this);
         return this;
     }
+
 
     public NextInventory open(UUID target) throws IllegalStateException {
         if (!this.players.contains(target)) {
@@ -138,6 +140,7 @@ public class NextInventory extends NextInventoryListener {
 
         Player plr = verifyPlayer(target);
         plr.openInventory(this.instance);
+        historyManager.view(target, this.id);
 
         return this;
     }

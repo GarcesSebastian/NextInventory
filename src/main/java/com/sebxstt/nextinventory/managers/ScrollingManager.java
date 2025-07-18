@@ -3,13 +3,12 @@ package com.sebxstt.nextinventory.managers;
 import com.sebxstt.nextinventory.NextInventory;
 import com.sebxstt.nextinventory.instances.NextItem;
 
-import java.util.List;
-
+import static com.sebxstt.nextinventory.InventoryHelper.DefaultButtons;
 import static com.sebxstt.nextinventory.InventoryHelper.blocked;
 
 public class ScrollingManager {
     public static void RenderPagination(NextInventory nextInventory) {
-        for (NextItem bt : List.of(nextInventory.getBack(), nextInventory.getCurrent(), nextInventory.getNext())) {
+        for (NextItem bt : DefaultButtons(nextInventory)) {
             nextInventory.getInstance().setItem(bt.getIndex(), bt.getInstance());
         }
 

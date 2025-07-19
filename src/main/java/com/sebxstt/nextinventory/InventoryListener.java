@@ -67,10 +67,11 @@ public class InventoryListener implements Listener {
         }
 
         Optional<NextItem> maybeItem = inv.getItems().stream()
-                .filter(item -> item.getIndex() == rawSlot && item.isRegistry())
+                .filter(item -> item.getIndex() == rawSlot && item.getCurrentPage().equals(inv.getCurrentPage()) && item.isRegistry())
                 .findFirst();
         if (maybeItem.isPresent() && !maybeItem.get().isDraggable()) {
             event.setCancelled(true);
+            return;
         }
     }
 

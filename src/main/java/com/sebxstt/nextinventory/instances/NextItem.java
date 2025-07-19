@@ -1,21 +1,30 @@
 package com.sebxstt.nextinventory.instances;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import com.sebxstt.nextinventory.NextInventoryProvider;
 import com.sebxstt.nextinventory.events.NextClickEvent;
-import com.sebxstt.nextinventory.enums.InventoryType;
 import com.sebxstt.nextinventory.NextInventory;
+import com.sebxstt.nextinventory.instances.http.FetchProfile;
+import com.sebxstt.nextinventory.instances.http.FetchTextures;
+import com.sebxstt.nextinventory.managers.HttpManager;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.util.Ticks;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -31,13 +40,17 @@ public class NextItem {
     private String name;
     private String description;
     private Material materialType;
+    private PlayerProfile OwnerProfile;
+    private String OnlinePlayer;
+    private URL ProfileTexture;
+    private FetchTextures TexturesPlayer;
 
     private boolean draggable = true;
     private boolean registry = false;
     private boolean button = false;
+    private boolean head = false;
 
     private ItemStack instance;
-    private ItemMeta meta;
     private int index;
 
     private List<Consumer<NextClickEvent>> onClickCallbacks = new ArrayList<>();
@@ -62,23 +75,33 @@ public class NextItem {
     }
     public void update() {
         this.instance = new ItemStack(this.materialType);
-        this.meta = this.instance.getItemMeta();
+        ItemMeta meta = this.instance.getItemMeta();
+
+        if (this.OwnerProfile != null) {
+            ((SkullMeta) meta).setPlayerProfile(this.OwnerProfile);
+        }
+
+        if (this.OnlinePlayer != null) {
+            PlayerProfile playerProfile = Bukkit.createProfile(UUID.randomUUID(), this.OnlinePlayer);
+            playerProfile.getProperties().add(new ProfileProperty("textures", this.TexturesPlayer.texture));
+            ((SkullMeta) meta).setPlayerProfile(playerProfile);
+        }
 
         if (materialType == null || materialType == Material.AIR) {
             throw new IllegalStateException("[NextItem] Material inválido para el ítem.");
         }
 
-        this.meta.displayName(mm.deserialize("<gradient:#ff00ff:#00ffff><bold>" + this.name + "</bold></gradient>"));
+        meta.displayName(mm.deserialize("<gradient:#ff00ff:#00ffff><bold>" + this.name + "</bold></gradient>"));
 
         if (!description.isBlank()) {
             List<Component> lore = new ArrayList<>();
             for (String line : description.split("\n")) {
                 lore.add(mm.deserialize("<gray>" + line + "</gray>"));
             }
-            this.meta.lore(lore);
+            meta.lore(lore);
         }
 
-        this.instance.setItemMeta(this.meta);
+        this.instance.setItemMeta(meta);
     }
     public void render() {
         this.update();
@@ -86,10 +109,7 @@ public class NextItem {
         if (this.currentPage == null) return;
 
         NextInventory nextInventory = next(this.parent);
-
-        if (nextInventory.getCurrentPage() == this.currentPage) {
-            nextInventory.getInstance().setItem(this.index, this.instance);
-        }
+        nextInventory.render();
     }
     public void stopSwap() {
         if (this.SwapConnection != null && !this.SwapConnection.isCancelled()) {
@@ -161,9 +181,6 @@ public class NextItem {
     public Material getMaterialType() {
         return materialType;
     }
-    public ItemMeta getMeta() {
-        return meta;
-    }
     public int getIndex() {
         return index;
     }
@@ -191,7 +208,7 @@ public class NextItem {
         this.render();
         return this;
     }
-    public NextItem page(int page) {
+    private NextItem page(int page) {
         NextPage pageInstance = pagination(page, this.parent);
         if (pageInstance == null) throw new IllegalStateException("Page Not Found " + page);
         pageInstance.insert(this);
@@ -286,6 +303,58 @@ public class NextItem {
                 index++;
             }
         }.runTaskTimer(NextInventoryProvider.plugin, 0L, interval);
+
+        return this;
+    }
+    public NextItem head(String playerName) {
+        Player player = Bukkit.getPlayerExact(playerName);
+
+        if (player != null) {
+            this.OwnerProfile = player.getPlayerProfile();
+        }
+
+        return this;
+    }
+    public NextItem headOnline(String onlinePlayer) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                FetchProfile profilePlayer;
+                FetchTextures texturesPlayer;
+
+                try {
+                    profilePlayer = HttpManager.getProfile(onlinePlayer);
+                    texturesPlayer = HttpManager.getTextures(profilePlayer.id);
+                } catch (Exception e) {
+                    Bukkit.getLogger().severe("[NextInventory] Failed to fetch profile/textures for: " + onlinePlayer);
+                    throw new RuntimeException(e);
+                }
+
+                TexturesPlayer = texturesPlayer;
+
+                byte[] decodedBytes = Base64.getDecoder().decode(texturesPlayer.texture);
+                String decodedJson = new String(decodedBytes);
+
+                try {
+                    JSONParser parser = new JSONParser();
+                    JSONObject json = (JSONObject) parser.parse(decodedJson);
+
+                    JSONObject textures = (JSONObject) json.get("textures");
+                    JSONObject skin = (JSONObject) textures.get("SKIN");
+                    ProfileTexture = new URL((String) skin.get("url"));
+                    OnlinePlayer = (String) json.get("profileName");
+                } catch (ParseException | MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
+
+                if (ProfileTexture == null) {
+                    throw new IllegalStateException("Profile texture URL is null for " + onlinePlayer);
+                }
+
+                setMaterialType(Material.PLAYER_HEAD);
+                render();
+            }
+        }.runTask(NextInventoryProvider.plugin);
 
         return this;
     }

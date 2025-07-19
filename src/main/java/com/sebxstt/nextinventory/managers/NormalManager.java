@@ -24,8 +24,10 @@ public class NormalManager {
         int[] indexesHistorable = new int[]{8, 0};
         ArrayList<Integer> blockedList = new ArrayList<>(instance.getSize().getBlockedSlots());
 
-        for (int i : indexesHistorable) {
-            blockedList.remove((Integer) i);
+        if (instance.isHistorable()){
+            for (int i : indexesHistorable) {
+                blockedList.remove((Integer) i);
+            }
         }
 
         instance.setIndexBlockedList(blockedList);

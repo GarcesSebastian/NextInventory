@@ -1,6 +1,5 @@
 package com.sebxstt.nextinventory;
 
-import com.sebxstt.nextinventory.events.NextInventoryEvent;
 import com.sebxstt.nextinventory.functions.utils.InPlayer;
 import com.sebxstt.nextinventory.enums.InventoryType;
 import com.sebxstt.nextinventory.instances.NextItem;
@@ -12,7 +11,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

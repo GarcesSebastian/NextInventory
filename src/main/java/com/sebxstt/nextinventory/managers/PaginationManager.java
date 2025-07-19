@@ -32,8 +32,11 @@ public class PaginationManager {
         for (int i : indexesPagination) {
             blockedList.remove((Integer) i);
         }
-        for (int i : indexesHistorable) {
-            blockedList.remove((Integer) i);
+
+        if (instance.isHistorable()){
+            for (int i : indexesHistorable) {
+                blockedList.remove((Integer) i);
+            }
         }
 
         instance.setIndexBlockedList(blockedList);

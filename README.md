@@ -163,9 +163,8 @@ Create multi-page inventories to organize large amounts of content:
 NextInventory inventory = NextInventory.builder()
     .title("My Paginated Menu")
     .size(InventorySize.LARGE)
-    .type(InventoryType.PAGINATION);
-
-inventory.pages(4); // Create 4 pages
+    .type(InventoryType.PAGINATION)
+    .pages(4); // Create 4 pages
 
 // Customize pagination controls (optional)
 inventory.getBack().setMaterialType(Material.ARROW);

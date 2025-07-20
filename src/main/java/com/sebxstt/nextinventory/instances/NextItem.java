@@ -230,7 +230,6 @@ public class NextItem {
     }
     public NextItem insert(int page) {
         NextInventory nextInventory = next(this.getParent());
-
         this.restart();
         this.registry(true);
         this.page(page);
@@ -381,5 +380,13 @@ public class NextItem {
     }
     public void setCurrentPage(Integer currentPage) {
         this.currentPage = currentPage;
+    }
+
+    public boolean isHead() {
+        return head;
+    }
+
+    public void setHead(boolean head) {
+        this.head = head;
     }
 }

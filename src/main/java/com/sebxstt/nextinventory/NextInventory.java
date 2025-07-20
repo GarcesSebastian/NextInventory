@@ -31,7 +31,7 @@ public class NextInventory extends NextInventoryListener {
     private NextItem current;
     private NextItem next;
 
-    private NextItem foward;
+    private NextItem forward;
     private NextItem backward;
 
     private Integer currentPage = 1;
@@ -266,8 +266,8 @@ public class NextInventory extends NextInventoryListener {
         this.next = next;
     }
 
-    public void setFoward(NextItem foward) {
-        this.foward = foward;
+    public void setForward(NextItem forward) {
+        this.forward = forward;
     }
 
     public void setBackward(NextItem backward) {
@@ -335,7 +335,7 @@ public class NextInventory extends NextInventoryListener {
     }
 
     public NextItem getForward() {
-        return this.foward;
+        return this.forward;
     }
 
     public NextItem getBackward() {

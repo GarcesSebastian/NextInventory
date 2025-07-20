@@ -16,7 +16,7 @@ public class HistorableCallbacks {
             NextItem ForwardItem = new NextItem("Next Interface", "---", Material.GREEN_STAINED_GLASS_PANE, instance);
             ForwardItem.setIndex(indexes[0]);
             ForwardItem.button(true).draggable(false);
-            instance.setFoward(ForwardItem);
+            instance.setForward(ForwardItem);
             instance.getItems().remove(ForwardItem);
 
             NextItem BackwardItem = new NextItem("Back Interface", "---", Material.BLUE_STAINED_GLASS_PANE, instance);

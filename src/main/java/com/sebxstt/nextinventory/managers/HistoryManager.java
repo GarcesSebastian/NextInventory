@@ -2,7 +2,9 @@ package com.sebxstt.nextinventory.managers;
 
 import com.sebxstt.nextinventory.InventoryHelper;
 import com.sebxstt.nextinventory.NextInventory;
+import com.sebxstt.nextinventory.functions.utils.InPlayer;
 import com.sebxstt.nextinventory.instances.PlayerHistory;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -32,7 +34,7 @@ public class HistoryManager {
         return history;
     }
 
-    public void update() {
+    public void update(Player viewer) {
         for (UUID interfaceID : this.interfaces) {
             String forwardDescription = "<red>You cannot go forward</red>";
             String backwardDescription = "<red>You cannot go back</red>";
@@ -91,7 +93,7 @@ public class HistoryManager {
         }
 
         history.setCurrentInventory(inventory);
-        this.update();
+        this.update(InPlayer.instance(viewer));
 
         return history;
     }
@@ -104,7 +106,6 @@ public class HistoryManager {
         if (InterfaceID != null) return;
 
         interfaces.add(nextInventory.getId());
-        this.update();
     }
 
     public void next(UUID player) {

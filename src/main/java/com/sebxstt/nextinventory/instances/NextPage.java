@@ -14,9 +14,16 @@ public class NextPage {
     private Integer maxStack;
     private ArrayList<UUID> stack = new ArrayList<>();
 
-    public NextPage (NextInventory nextInventory) {
+    public NextPage (int maxStack) {
         this.id = UUID.randomUUID();
-        this.maxStack = nextInventory.getSize().getContentSlots();
+        this.maxStack = maxStack;
+    }
+
+    public NextPage clone() {
+        NextPage cloned = new NextPage(this.maxStack);
+        cloned.setIndex(this.index);
+        cloned.setStack(new ArrayList<>(this.stack));
+        return cloned;
     }
 
     public NextPage insert(NextItem instance) throws IllegalStateException {
@@ -61,5 +68,13 @@ public class NextPage {
 
     public Integer getMaxStack() {
         return maxStack;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public void setStack(ArrayList<UUID> stack) {
+        this.stack = stack;
     }
 }

@@ -1,6 +1,7 @@
 package com.sebxstt.nextinventory;
 
 import com.sebxstt.nextinventory.enums.InventoryType;
+import com.sebxstt.nextinventory.instances.PlayerView;
 import com.sebxstt.nextinventory.listener.NextInventoryListener;
 import com.sebxstt.nextinventory.enums.InventorySize;
 import com.sebxstt.nextinventory.instances.NextItem;
@@ -25,6 +26,7 @@ public class NextInventory extends NextInventoryListener {
 
     private InventoryType type;
     private ArrayList<UUID> players = new ArrayList<>();
+    private final ArrayList<PlayerView> PlayerViewList = new ArrayList<>();
     private Inventory instance;
 
     private NextItem back;
@@ -54,7 +56,7 @@ public class NextInventory extends NextInventoryListener {
         NextInventoryProvider.nextInventoryMap.put(this.instance, this);
         NextInventoryProvider.nextInventoryList.add(this);
 
-        this.pages.add(new NextPage(this).index(1));
+        this.pages.add(new NextPage(this.getSize().getContentSlots()).index(1));
         resolve(this);
     }
 
@@ -132,15 +134,25 @@ public class NextInventory extends NextInventoryListener {
         return this;
     }
 
-
     public NextInventory open(UUID target) throws IllegalStateException {
+//        if (this.PlayerViewList.stream().noneMatch(pv -> pv.getPlayer().equals(target))) {
+//            PlayerView pv = new PlayerView(target, this);
+//            this.PlayerViewList.add(pv);
+//        }
+
         if (!this.players.contains(target)) {
             this.players.add(target);
         }
 
         Player plr = verifyPlayer(target);
+
+//        PlayerView pv = this.PlayerViewList.stream().filter(pview -> pview.getPlayer().equals(plr.getUniqueId())).findFirst().orElse(null);
+//        assert pv != null;
+//        plr.openInventory(pv.getInstance());
+
         plr.openInventory(this.instance);
         historyManager.view(target, this.id);
+        this.render();
 
         return this;
     }
@@ -195,6 +207,23 @@ public class NextInventory extends NextInventoryListener {
         }
     }
 
+//    public void render() {
+//        PaginationManager.update(this);
+//        for (PlayerView pv : this.PlayerViewList) {
+//            NextPage currentPage = pagination(pv.getCurrent(), this.id);
+//            if (currentPage == null) return;
+//
+//            pv.getInstance().clear();
+//            RenderPagination(this);
+//
+//            for (UUID item : currentPage.getStack()) {
+//                NextItem nextItem = item(item, this.id);
+//                if (nextItem == null) continue;
+//                pv.getInstance().setItem(nextItem.getIndex(), nextItem.getInstance());
+//            }
+//        }
+//    }
+
     public void back() {
         if (this.currentPage <= 0) return;
         this.currentPage--;
@@ -226,7 +255,7 @@ public class NextInventory extends NextInventoryListener {
 
     public NextInventory pages(int amount) {
         for (int i = 0; i < amount; i++) {
-            NextPage newPage = new NextPage(this).index(this.pages.size() + 1);
+            NextPage newPage = new NextPage(this.getSize().getContentSlots()).index(this.pages.size() + 1);
             this.pages.add(newPage);
         }
 
@@ -316,6 +345,10 @@ public class NextInventory extends NextInventoryListener {
 
     public ArrayList<UUID> getPlayers() {
         return players;
+    }
+
+    public ArrayList<PlayerView> getPlayerViewList() {
+        return PlayerViewList;
     }
 
     public Inventory getInstance() {

@@ -195,6 +195,36 @@ public class NextItem {
     }
 
     // Helpers Functions
+    public NextItem clone() {
+        // Crear una nueva instancia básica
+        NextItem cloned = new NextItem(this.name, this.description, this.materialType, next(this.parent));
+
+        // Copiar propiedades simples
+        cloned.setIndex(this.index);
+        cloned.draggable(this.draggable);
+        cloned.setHead(this.head);
+        cloned.setMaterialType(this.materialType);
+        cloned.setName(this.name);
+        cloned.setDescription(this.description);
+
+        if (this.OwnerProfile != null) {
+            cloned.OwnerProfile = this.OwnerProfile;
+        }
+
+        if (this.OnlinePlayer != null && this.TexturesPlayer != null) {
+            cloned.OnlinePlayer = this.OnlinePlayer;
+            cloned.TexturesPlayer = this.TexturesPlayer;
+            cloned.ProfileTexture = this.ProfileTexture;
+        }
+
+        if (this.button) {
+            cloned.button(true);
+            cloned.onClickCallbacks = new ArrayList<>(this.onClickCallbacks);
+        }
+
+        cloned.update();
+        return cloned;
+    }
     public NextItem draggable(boolean draggable) {
         this.draggable = draggable;
         this.render();

@@ -4,6 +4,7 @@ import com.sebxstt.nextinventory.functions.utils.InPlayer;
 import com.sebxstt.nextinventory.enums.InventoryType;
 import com.sebxstt.nextinventory.instances.NextItem;
 import com.sebxstt.nextinventory.instances.NextPage;
+import com.sebxstt.nextinventory.instances.PlayerView;
 import com.sebxstt.nextinventory.managers.NormalManager;
 import com.sebxstt.nextinventory.managers.PaginationManager;
 import com.sebxstt.nextinventory.managers.ScrollingManager;
@@ -115,6 +116,20 @@ public class InventoryHelper {
             ScrollingManager.setup(nextInventory);
             return;
         }
+    }
+
+    public static PlayerView playerView(UUID player, UUID inventory) {
+        NextInventory instance = next(inventory);
+        PlayerView playerView = instance.getPlayerViewList().stream()
+                .filter(pv -> pv.getPlayer().equals(player))
+                .findFirst().orElse(null);
+
+        if (playerView == null) {
+            System.out.println("[InventoryHelper] [ERROR] PlayerView Not Found " + player);
+            return null;
+        }
+
+        return playerView;
     }
 
     public static NextInventory next(UUID id) {

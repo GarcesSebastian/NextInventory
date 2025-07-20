@@ -6,8 +6,6 @@ import com.sebxstt.nextinventory.instances.NextItem;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import java.util.UUID;
-
 import static com.sebxstt.nextinventory.NextInventoryProvider.historyManager;
 
 public class HistorableCallbacks {

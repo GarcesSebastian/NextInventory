@@ -14,7 +14,7 @@ public class HistoryManager {
     public ArrayList<PlayerHistory> PlayersHistory = new ArrayList<>();
     public ArrayList<UUID> interfaces = new ArrayList<>();
 
-    private HistoryManager() {};
+    private HistoryManager() {}
 
     public static HistoryManager getInstance() {
         if (instance == null) {
@@ -34,47 +34,35 @@ public class HistoryManager {
         return history;
     }
 
-    public void update(Player viewer) {
+    public void update() {
         for (UUID interfaceID : this.interfaces) {
             String forwardDescription = "<red>You cannot go forward</red>";
             String backwardDescription = "<red>You cannot go back</red>";
 
             NextInventory CurrentInventory = InventoryHelper.next(interfaceID);
-            if (CurrentInventory == null) {
-                System.err.println("[HistoryManager] Error: Current interface not found for ID: " + interfaceID);
-                continue;
-            }
 
             int CurrentIndex = this.interfaces.indexOf(interfaceID);
 
             if (CurrentIndex - 1 >= 0) {
                 UUID BackwardID = this.interfaces.get(CurrentIndex - 1);
                 NextInventory BackwardInventory = InventoryHelper.next(BackwardID);
-                if (BackwardInventory != null) {
-                    backwardDescription = "<yellow>" + BackwardInventory.getTitle() + "</yellow>";
-                    BackwardInventory.render();
-                    BackwardInventory.getInstance().setItem(
-                            BackwardInventory.getBackward().getIndex(),
-                            BackwardInventory.getBackward().getInstance()
-                    );
-                } else {
-                    System.err.println("[HistoryManager] Error: Previous interface not found for ID: " + BackwardID);
-                }
+                backwardDescription = "<yellow>" + BackwardInventory.getTitle() + "</yellow>";
+                BackwardInventory.render();
+                BackwardInventory.getInstance().setItem(
+                        BackwardInventory.getBackward().getIndex(),
+                        BackwardInventory.getBackward().getInstance()
+                );
             }
 
             if (CurrentIndex + 1 < this.interfaces.size()) {
                 UUID ForwardID = this.interfaces.get(CurrentIndex + 1);
                 NextInventory ForwardInventory = InventoryHelper.next(ForwardID);
-                if (ForwardInventory != null) {
-                    forwardDescription = "<yellow>" + ForwardInventory.getTitle() + "</yellow>";
-                    ForwardInventory.render();
-                    ForwardInventory.getInstance().setItem(
-                            ForwardInventory.getForward().getIndex(),
-                            ForwardInventory.getForward().getInstance()
-                    );
-                } else {
-                    System.err.println("[HistoryManager] Error: Next interface not found for ID: " + ForwardID);
-                }
+                forwardDescription = "<yellow>" + ForwardInventory.getTitle() + "</yellow>";
+                ForwardInventory.render();
+                ForwardInventory.getInstance().setItem(
+                        ForwardInventory.getForward().getIndex(),
+                        ForwardInventory.getForward().getInstance()
+                );
             }
 
             CurrentInventory.getForward().setDescription(forwardDescription);
@@ -93,7 +81,7 @@ public class HistoryManager {
         }
 
         history.setCurrentInventory(inventory);
-        this.update(InPlayer.instance(viewer));
+        this.update();
 
         return history;
     }
